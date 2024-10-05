@@ -1,0 +1,32 @@
+root = true
+
+# everything
+[*]
+end_of_line = lf
+insert_final_newline = true
+charset = utf-8
+indent_style = space
+indent_size = 2
+max_line_length = 80
+
+# go 
+[*.go]
+end_of_line = lf
+indent_size = 4
+tab_width = 4
+indent_style = space
+max_line_length = 80
+insert_final_newline = true
+
+# markdown 
+[*.md]
+indent_size = 2
+max_line_length = 80
+
+# makefile override for tabs instead of spaces
+# since makefiles are dependant on tabs oof 🫡
+[Makefile, Makefile.*]
+indent_style = tab
+indent_size = 4
+
+
