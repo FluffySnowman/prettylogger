@@ -13,7 +13,6 @@ import (
 
 	// "log"
 	"os"
-
 	// "fmt"
 	// "os"
 	// "testing"
@@ -107,29 +106,36 @@ const (
 // Struct for all the log types so that diff log formats can be defined without
 // repeating shit
 type LogTypes struct {
-	LogLog   string
-	DebugLog string
-	ErrorLog string
-	FatalLog string
-	InfoLog  string
+	LogLog     string
+	DebugLog   string
+	ErrorLog   string
+	FatalLog   string
+	InfoLog    string
+	SuccessLog string
+	FailedLog  string
 }
 
 // Simple log format with static text and string format specifiers for the ansi,
 // message and reset.
 var SimpleLog = LogTypes{
-	LogLog:   "%s[   LOG   ] %s %s \n",
-	DebugLog: "%s[  DEBUG  ] %s %s \n",
-	ErrorLog: "%s[  ERROR  ] %s %s \n",
-	FatalLog: "%s[  FATAL  ] %s %s \n",
-	InfoLog:  "%s[  INFO   ] %s %s \n",
+	LogLog:     "%s[   LOG   ] %v %s \n",
+	DebugLog:   "%s[  DEBUG  ] %v %s \n",
+	ErrorLog:   "%s[  ERROR  ] %v %s \n",
+	FatalLog:   "%s[  FATAL  ] %v %s \n",
+	InfoLog:    "%s[  INFO   ] %v %s \n",
+	SuccessLog: "%s[ SUCCESS ] %v %s \n",
+	FailedLog:  "%s[ FAILURE ] %v %s \n",
 }
 
+// Complex logs with timestamps
 var TimestampLog = LogTypes{
-	LogLog:   "[  LOG  %v ] ",
-	DebugLog: "[ DEBUG %v ] ",
-	ErrorLog: "[ ERROR %v ] ",
-	FatalLog: "[ FATAL %v ] ",
-	InfoLog:  "[ INFO  %v ] ",
+	LogLog:     "%s[  LOG  %v ] %v",
+	DebugLog:   "%s[ DEBUG %v ] %s %s\n",
+	ErrorLog:   "%s[ ERROR %v ] %v",
+	FatalLog:   "%s[ FATAL %v ] %v",
+	InfoLog:    "%s[ INFO  %v ] %v",
+    SuccessLog: "%s[ SUCCESS ] %s %s \n", // TODO: fix format specifiers later 
+    FailedLog:  "%s[ FAILURE ] %s %s \n", // TODO: ^ same as above
 }
 
 // Configuration for the logger
@@ -142,7 +148,8 @@ type PrettyLogger struct {
 
 // Gets current time formatted to rfc3339 to milliseconds with Z
 func getCurrentTimestamp() string {
-	return time.Now().Format(time.RFC3339Nano)[:23] + "Z"
+	// return time.Now().Format(time.RFC3339Nano)[:23] + "Z"
+    return time.Now().Format(time.RFC3339);
 }
 
 // Global pretty logger instance (used to r/w config from)
@@ -164,15 +171,81 @@ func InitPrettyLogger(prettyLogType string) {
 // Gets the type of the log (simple, timestamp etc) and returns it which is then
 // used in the actual logging
 func getLogType() LogTypes {
-    switch prettyLoggerConfig.logType {
-        case "SIMPLE": 
-            return SimpleLog
-        case "SIMPLETIME": 
-            return TimestampLog
-        default:
-            return SimpleLog
+	switch prettyLoggerConfig.logType {
+	case "SIMPLE":
+		return SimpleLog
+	case "TIMEBASED":
+		return TimestampLog
+	// case "TIMECOMPLEX":
+	// 	return ComplexTimestampLog
+	default:
+		return SimpleLog
+	}
+}
+
+// Debug logs with cyan background
+func LogDebug(message string) {
+	logFormats := getLogType()
+	if prettyLoggerConfig != nil {
+		writeLog(logFormats.DebugLog, CyanFgANSI, message)
+	}
+}
+
+func LogDebugTimestamp(message string) {
+    logFormat := getLogType()
+    if prettyLoggerConfig != nil {
+        writeTimestampLog(logFormat.DebugLog, CyanFgANSI, message)
     }
 }
+
+func writeTimestampLog(logFormat string, logColor string, message string) {
+    // Get the current timestamp for the timestamp log 
+    timestamp := getCurrentTimestamp();
+    if prettyLoggerConfig != nil {
+        fmt.Fprintf(
+            prettyLoggerConfig.writer,
+            logFormat,
+            logColor,
+            timestamp,
+            ResetANSI,
+            message,
+        )
+    }
+}
+
+// Function that actually writes the logs 
+func writeLog(logFormat string, logColor string, message string) {
+	if prettyLoggerConfig != nil {
+		fmt.Fprintf(
+			prettyLoggerConfig.writer,
+			logFormat,
+			logColor,
+            ResetANSI,
+			message,
+		)
+	}
+}
+
+// Using main here for testing
+func main() {
+
+	// Init the logger
+	InitPrettyLogger("SIMPLE")
+	// InitPrettyLogger("TIMEBASED")
+
+	LogDebug("this should be printed with the debug log ")
+	// LogDebugTimestamp("this is a timestamp log")
+	// LogError("some ERROR shit here")
+	// LogInfo("some info here ")
+}
+
+
+
+
+
+
+
+
 
 // Info logs with white foreground
 // func LogInfo(message string) {
@@ -181,46 +254,11 @@ func getLogType() LogTypes {
 // 	}
 // }
 
-// Debug logs with cyan background
-func LogDebug(message string) {
-    logFormats := getLogType()
-	if prettyLoggerConfig != nil {
-        writeLog(logFormats.DebugLog, CyanFgANSI, message)
-	}
-}
-
 // func LogError(message string) {
 // 	if prettyLoggerConfig != nil {
 // 		writeLog(ErrorLogBasic, message)
 // 	}
 // }
-
-// function that actually writes the logs
-func writeLog(logFormat string, logColor string, message string) {
-	if prettyLoggerConfig != nil {
-
-        fmt.Fprintf(
-            prettyLoggerConfig.writer,
-            logFormat, 
-            logColor,
-            message,
-            ResetANSI,
-        )
-
-        // fmt.Fprintf(prettyLoggerConfig.writer, "%s%s %s%s\n",
-        // prettyLoggerConfig.color, prefix, message, ResetANSI)
-	}
-}
-
-// Using main here for testing
-func main() {
-	// Init the logger e 
-	InitPrettyLogger("SIMPLE")
-
-	LogDebug("this should be printed with the debug log ")
-	// LogError("some ERROR shit here")
-    // LogInfo("some info here ")
-}
 
 // SetColor(WhiteFgANSI)
 // // Allows setting the colour for the logger (WhiteFgANSI, GreenFgANSI, etc.)
@@ -229,4 +267,3 @@ func main() {
 // 		prettyLoggerConfig.color = color
 // 	}
 // }
-
