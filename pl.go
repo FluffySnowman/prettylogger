@@ -1,10 +1,38 @@
-// PL: A simple Pretty Logger made in go
-//
-// All the code for the pretty logger is contained within this one file for
-// simplicity.
-//
-// package prettylogger
-package main // main here for testing
+/* 
+
+# PL: A simple Pretty Logger made in go
+
+All the code for the pretty logger is contained within this one file for
+simplicity.
+
+# Usage
+
+Initialise the pretty logger with a config (can be SIMPLE, TIMEBASED) which
+is automatically used everywhere once set.
+
+Example:
+
+    pl.InitPrettyLogger("SIMPLE")       // basic 
+    pl.InitPrettyLogger("TIMEBASED")    // shows timestamps
+    pl.LogInfo("Hello World")
+
+Multiple arguments:
+
+    pl.LogDebug("this is a debug log %v", "foo bar")
+
+Force a timestamp log:
+
+    pl.LogDebug("this is a debug log %v", "foo bar").Timestamp().Print()
+
+Changing SIMPLE to TIMEBASED & vice versa will cause problems hence use the
+.Timestamp() and .Print() when timestamps are needed.
+
+Author: @FluffySnowman (GitHub)
+
+Source: https://github.com/FluffySnowman/prettylogger
+*/
+package prettylogger
+// package main // main here for testing
 
 import (
 	"fmt"
@@ -353,10 +381,11 @@ func LogFailure(format string, a ...interface{}) *LogEntry {
 func main() {
 
 	// Init the logger with simple/complex config
-	// InitPrettyLogger("SIMPLE")
-	InitPrettyLogger("TIMEBASED")
+	InitPrettyLogger("SIMPLE")
+	// InitPrettyLogger("TIMEBASED")
 
 	LogDebug("this is a debug log %v", "which should print something").Timestamp().Print()
+	// LogDebug("this is a debug log %v", "which should print something").Timestamp().Print()
 	LogInfo("job info: %v ", "running job ...")
 	LogInfo("job info: %v ", "job SUCCESS").Timestamp().Print()
 
