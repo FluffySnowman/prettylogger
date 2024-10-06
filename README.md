@@ -91,7 +91,7 @@ pl.InitPrettyLogger(opts)  // Accepts "SIMPLE" or "TIMEBASED"
 
 // Chaining functions (in order)
 .Timestamp()  // adds timestamp to the log
-.Print()      // prints the log (must be changed to each log for it to work)
+.Print()      // prints the log (must be chained to each log for it to work)
 
 // All functions below accept `.Timestamp()` before `.Print()`
 pl.Log().Print()          // green
