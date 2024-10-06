@@ -252,6 +252,19 @@ func (le *LogEntry) Print() {
 	}
 }
 
+// Log general data (green)
+func Log(format string, a ...interface{}) *LogEntry {
+	logFormats := getLogType()
+	formattedMessage := fmt.Sprintf(format, a...)
+	entry := &LogEntry{
+		logFormat: logFormats.DebugLog,
+		logColor:  GreenFgANSI,
+		message:   formattedMessage,
+		timestamp: false,
+	}
+	return entry
+}
+
 // Debug logs (cyan)
 func LogDebug(format string, a ...interface{}) *LogEntry {
 	logFormats := getLogType()

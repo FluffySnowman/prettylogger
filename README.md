@@ -34,7 +34,7 @@ import (
 
 func main() {
   pl.InitPrettyLogger("SIMPLE")       // basic 
-  pl.LogInfo("Hello World").Print()   // .Print() must always be called
+  pl.Log("Hello World").Print()   // .Print() must always be called
                                       // otherwise nothing works
 }
 ```
@@ -50,7 +50,7 @@ import (
 
 func main() {
   pl.InitPrettyLogger("TIMEBASED")    // shows timestamps
-  pl.LogInfo("Hello World").Print()
+  pl.Log("Hello World").Print()
 }
 ```
 
@@ -74,4 +74,18 @@ pl.LogDebug("this is a debug log %v", "with a timestamp").Timestamp().Print()
 
 Changing SIMPLE to TIMEBASED & vice versa will cause problems hence use the
 .Timestamp() and .Print() when timestamps are needed.
+
+## All Logging Functions
+
+Below is a list of all the available functions 
+
+```go
+pl.Log().Print()          // green
+pl.LogDebug().Print()     // cyan 
+pl.LogError().Print()     // red
+pl.LogInfo().Print()      // blue
+pl.LogFatal().Print()     // red
+pl.LogSuccess().Print()   // green
+pl.LogFailure().Print()   // yellow
+```
 
