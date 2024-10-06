@@ -11,19 +11,24 @@ PL is a simple, easy to use pretty logger made in go.
 
 ## Installation
 
+Use `go get` to install with the latest tag `v0.0.1` (recommended)
+
+```bash
+go get -u github.com/fluffysnowman/prettylogger@v0.0.1
+```
+
+or
+
 Go's module suppert automatically fetches all the dependencies needed when you
-import it in your code.
+import it in your code so `go get` isn't required, however for this project, the
+`go get` installation is recommended (see the code block above for
+instructions).
 
 ```go
 // Importing and setting an alias to `pl` 
 import pl "github.com/fluffysnowman/prettylogger"
 ```
 
-Or you could use `go get`
-
-```bash
-go get -u github.com/fluffysnowman/prettylogger
-```
 
 ## Usage
 
