@@ -1,3 +1,3 @@
-module github.com/fluffysnowman/pl
+module github.com/fluffysnowman/prettylogger
 
 go 1.23.0

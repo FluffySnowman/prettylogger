@@ -31,7 +31,7 @@ Author: @FluffySnowman (GitHub)
 
 Source: https://github.com/FluffySnowman/prettylogger
 */
-package pl
+package prettylogger
 // package main // main here for testing
 
 import (
