@@ -9,6 +9,7 @@ package main // main here for testing
 import (
 	"fmt"
 	"io"
+	"log"
 	"time"
 
 	// "log"
@@ -118,24 +119,24 @@ type LogTypes struct {
 // Simple log format with static text and string format specifiers for the ansi,
 // message and reset.
 var SimpleLog = LogTypes{
-	LogLog:     "%s[   LOG   ] %v %s \n",
-	DebugLog:   "%s[  DEBUG  ] %v %s \n",
-	ErrorLog:   "%s[  ERROR  ] %v %s \n",
-	FatalLog:   "%s[  FATAL  ] %v %s \n",
-	InfoLog:    "%s[  INFO   ] %v %s \n",
-	SuccessLog: "%s[ SUCCESS ] %v %s \n",
-	FailedLog:  "%s[ FAILURE ] %v %s \n",
+	LogLog:     "%s[   LOG   %s]%s %v\n",
+	DebugLog:   "%s[  DEBUG  %s]%s %v\n",
+	ErrorLog:   "%s[  ERROR  %s]%s %v\n",
+	FatalLog:   "%s[  FATAL  %s]%s %v\n",
+	InfoLog:    "%s[  INFO   %s]%s %v\n",
+	SuccessLog: "%s[ SUCCESS %s]%s %v\n",
+	FailedLog:  "%s[ FAILURE %s]%s %v\n",
 }
 
-// Complex logs with timestamps
+// Timestamped log formats
 var TimestampLog = LogTypes{
-	LogLog:     "%s[  LOG  %v ] %v",
-	DebugLog:   "%s[ DEBUG %v ] %s %s\n",
-	ErrorLog:   "%s[ ERROR %v ] %v",
-	FatalLog:   "%s[ FATAL %v ] %v",
-	InfoLog:    "%s[ INFO  %v ] %v",
-    SuccessLog: "%s[ SUCCESS ] %s %s \n", // TODO: fix format specifiers later 
-    FailedLog:  "%s[ FAILURE ] %s %s \n", // TODO: ^ same as above
+	LogLog:     "%s[   LOG   %s]%s %v\n",
+	DebugLog:   "%s[  DEBUG  %s]%s %v\n",
+	ErrorLog:   "%s[  ERROR  %s]%s %v\n",
+	FatalLog:   "%s[  FATAL  %s]%s %v\n",
+	InfoLog:    "%s[  INFO   %s]%s %v\n",
+	SuccessLog: "%s[ SUCCESS %s]%s %v\n",
+	FailedLog:  "%s[ FAILURE %s]%s %v\n",
 }
 
 // Configuration for the logger
@@ -149,7 +150,8 @@ type PrettyLogger struct {
 // Gets current time formatted to rfc3339 to milliseconds with Z
 func getCurrentTimestamp() string {
 	// return time.Now().Format(time.RFC3339Nano)[:23] + "Z"
-    return time.Now().Format(time.RFC3339);
+	// return time.Now().Format(time.RFC3339);
+	return time.Now().Format("2006/01/02 15:04:05")
 }
 
 // Global pretty logger instance (used to r/w config from)
@@ -183,87 +185,103 @@ func getLogType() LogTypes {
 	}
 }
 
-// Debug logs with cyan background
-func LogDebug(message string) {
-	logFormats := getLogType()
-	if prettyLoggerConfig != nil {
-		writeLog(logFormats.DebugLog, CyanFgANSI, message)
-	}
-}
-
-func LogDebugTimestamp(message string) {
-    logFormat := getLogType()
-    if prettyLoggerConfig != nil {
-        writeTimestampLog(logFormat.DebugLog, CyanFgANSI, message)
-    }
-}
-
-func writeTimestampLog(logFormat string, logColor string, message string) {
-    // Get the current timestamp for the timestamp log 
-    timestamp := getCurrentTimestamp();
-    if prettyLoggerConfig != nil {
-        fmt.Fprintf(
-            prettyLoggerConfig.writer,
-            logFormat,
-            logColor,
-            timestamp,
-            ResetANSI,
-            message,
-        )
-    }
-}
-
-// Function that actually writes the logs 
+// Function that actually writes the logs
 func writeLog(logFormat string, logColor string, message string) {
+	timestamp := ""
+	if prettyLoggerConfig.logType == "TIMEBASED" {
+		timestamp = " " + getCurrentTimestamp() + " "
+	}
 	if prettyLoggerConfig != nil {
 		fmt.Fprintf(
 			prettyLoggerConfig.writer,
 			logFormat,
 			logColor,
-            ResetANSI,
+			timestamp,
+			ResetANSI,
 			message,
 		)
+	}
+}
+
+// Debug logs with cyan color
+func LogDebug(format string, a ...interface{}) {
+	logFormats := getLogType()
+	if prettyLoggerConfig != nil {
+		formattedMessage := fmt.Sprintf(format, a...)
+		writeLog(logFormats.DebugLog, CyanFgANSI, formattedMessage)
+	}
+}
+
+func LogError(format string, a ...interface{}) {
+	logFormats := getLogType()
+	if prettyLoggerConfig != nil {
+		formattedMessage := fmt.Sprintf(format, a...)
+		writeLog(logFormats.ErrorLog, RedFgANSI, formattedMessage)
+	}
+}
+
+func LogInfo(format string, a ...interface{}) {
+	logFormats := getLogType()
+	if prettyLoggerConfig != nil {
+		formattedMessage := fmt.Sprintf(format, a...)
+		writeLog(logFormats.InfoLog, BlueFgANSI, formattedMessage)
+	}
+}
+
+func LogFatal(format string, a ...interface{}) {
+	logFormats := getLogType()
+	if prettyLoggerConfig != nil {
+		formattedMessage := fmt.Sprintf(format, a...)
+		writeLog(logFormats.FatalLog, BrightRedFgANSI, formattedMessage)
+	}
+}
+
+func LogSuccess(format string, a ...interface{}) {
+	logFormats := getLogType()
+	if prettyLoggerConfig != nil {
+		formattedMessage := fmt.Sprintf(format, a...)
+		writeLog(logFormats.SuccessLog, GreenFgANSI, formattedMessage)
+	}
+}
+
+func LogFailure(format string, a ...interface{}) {
+	logFormats := getLogType()
+	if prettyLoggerConfig != nil {
+		formattedMessage := fmt.Sprintf(format, a...)
+		writeLog(logFormats.FailedLog, YellowFgANSI, formattedMessage)
 	}
 }
 
 // Using main here for testing
 func main() {
 
-	// Init the logger
+	// Init the logger with simple/complex config
 	InitPrettyLogger("SIMPLE")
 	// InitPrettyLogger("TIMEBASED")
 
-	LogDebug("this should be printed with the debug log ")
-	// LogDebugTimestamp("this is a timestamp log")
-	// LogError("some ERROR shit here")
-	// LogInfo("some info here ")
+	// // Basic in built logging
+	// log.Printf("Hello there ")
+
+	// Testing different data types to see if it works
+	var someString string
+	var someInt int
+	var someFloat float64
+	someString = "this is some string"
+	someInt = 42069
+	someFloat = 2981389.829810
+
+	LogError("some ERROR shit here")
+	LogDebug("this is a debug log")
+	LogInfo("some info here")
+	LogSuccess("success with some int -> %v", someInt)
+	LogFailure("this is a failure message")
+	LogFatal("failed to 420: %v %v", someString, someFloat)
 }
 
-
-
-
-
-
-
-
-
-// Info logs with white foreground
-// func LogInfo(message string) {
-// 	if prettyLoggerConfig != nil {
-// 		writeLog(InfoLogBasic, message)
-// 	}
-// }
-
-// func LogError(message string) {
-// 	if prettyLoggerConfig != nil {
-// 		writeLog(ErrorLogBasic, message)
-// 	}
-// }
-
-// SetColor(WhiteFgANSI)
-// // Allows setting the colour for the logger (WhiteFgANSI, GreenFgANSI, etc.)
-// func SetColor(color string) {
-// 	if prettyLoggerConfig != nil {
-// 		prettyLoggerConfig.color = color
-// 	}
+// Test with basic raw ascii for comparison
+// var errorTest error
+// errorTest = errors.New("some error happened")
+// errorTest := nil
+// if errorTest == nil {
+// 	fmt.Printf("\033[31m[ ERROR ] \033[97;40m%v\033[0m\n", errorTest)
 // }
