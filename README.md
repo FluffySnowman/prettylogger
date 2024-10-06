@@ -9,13 +9,13 @@ import it in your code.
 
 ```go
 // Importing and setting an alias to `pl` 
-import pl "github.com/FluffySnowman/prettylogger"
+import pl "github.com/fluffysnowman/prettylogger"
 ```
 
 Or you could use `go get`
 
 ```bash
-go get -u github.com/FluffySnowman/prettylogger
+go get -u github.com/fluffysnowman/prettylogger
 ```
 
 ## Usage
@@ -29,7 +29,7 @@ Basic example:
 package main
 
 import (
-  pl "github.com/FluffySnowman/prettylogger"
+  pl "github.com/fluffysnowman/prettylogger"
 )
 
 func main() {
@@ -44,7 +44,7 @@ Using timestamps:
 package main
 
 import (
-  pl "github.com/FluffySnowman/prettylogger"
+  pl "github.com/fluffysnowman/prettylogger"
 )
 
 func main() {
