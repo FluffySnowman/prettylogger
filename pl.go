@@ -1,5 +1,4 @@
-/* 
-
+/*
 # PL: A simple Pretty Logger made in go
 
 All the code for the pretty logger is contained within this one file for
@@ -12,17 +11,17 @@ is automatically used everywhere once set.
 
 Example:
 
-    pl.InitPrettyLogger("SIMPLE")       // basic 
-    pl.InitPrettyLogger("TIMEBASED")    // shows timestamps
-    pl.LogInfo("Hello World")
+	pl.InitPrettyLogger("SIMPLE")       // basic
+	pl.InitPrettyLogger("TIMEBASED")    // shows timestamps
+	pl.LogInfo("Hello World")
 
 Multiple arguments:
 
-    pl.LogDebug("this is a debug log %v", "foo bar")
+	pl.LogDebug("this is a debug log %v", "foo bar")
 
 Force a timestamp log:
 
-    pl.LogDebug("this is a debug log %v", "foo bar").Timestamp().Print()
+	pl.LogDebug("this is a debug log %v", "foo bar").Timestamp().Print()
 
 Changing SIMPLE to TIMEBASED & vice versa will cause problems hence use the
 .Timestamp() and .Print() when timestamps are needed.
@@ -32,6 +31,7 @@ Author: @FluffySnowman (GitHub)
 Source: https://github.com/FluffySnowman/prettylogger
 */
 package prettylogger
+
 // package main // main here for testing
 
 import (
