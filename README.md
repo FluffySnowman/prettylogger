@@ -34,7 +34,8 @@ import (
 
 func main() {
   pl.InitPrettyLogger("SIMPLE")       // basic 
-  pl.LogInfo("Hello World")
+  pl.LogInfo("Hello World").Print()   // .Print() must always be called
+                                      // otherwise nothing works
 }
 ```
 
@@ -49,7 +50,7 @@ import (
 
 func main() {
   pl.InitPrettyLogger("TIMEBASED")    // shows timestamps
-  pl.LogInfo("Hello World")
+  pl.LogInfo("Hello World").Print()
 }
 ```
 
@@ -59,7 +60,7 @@ func main() {
 Multiple arguments:
 
 ```go
-pl.LogDebug("this is a debug log %v", "foo bar")
+pl.LogDebug("this is a debug log %v", "foo bar").Print()
 ```
 
 Force a timestamp log:
