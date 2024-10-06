@@ -38,12 +38,7 @@ import (
 	"fmt"
 	"io"
 	"time"
-
-	// "log"
 	"os"
-	// "fmt"
-	// "os"
-	// "testing"
 )
 
 // Foreground colours (only text)
@@ -378,16 +373,16 @@ func LogFailure(format string, a ...interface{}) *LogEntry {
 }
 
 // Using main here for testing
-func main() {
+// func main() {
 
-	// Init the logger with simple/complex config
-	InitPrettyLogger("SIMPLE")
-	// InitPrettyLogger("TIMEBASED")
+// 	// Init the logger with simple/complex config
+// 	InitPrettyLogger("SIMPLE")
+// 	// InitPrettyLogger("TIMEBASED")
 
-	LogDebug("this is a debug log %v", "which should print something").Timestamp().Print()
-	// LogDebug("this is a debug log %v", "which should print something").Timestamp().Print()
-	LogInfo("job info: %v ", "running job ...")
-	LogInfo("job info: %v ", "job SUCCESS").Timestamp().Print()
+// 	LogDebug("this is a debug log %v", "which should print something").Timestamp().Print()
+// 	// LogDebug("this is a debug log %v", "which should print something").Timestamp().Print()
+// 	LogInfo("job info: %v ", "running job ...")
+// 	LogInfo("job info: %v ", "job SUCCESS").Timestamp().Print()
 
 	// // Testing different data types to see if it works
 	// var someString string
@@ -407,7 +402,7 @@ func main() {
 	// Example of logging with timestamp
 	// LogDebug("this is a debug log with timestamp").Timestamp().Print()
 	// LogInfo("some info here with timestamp").Timestamp().Print()
-}
+// }
 
 // Test with basic raw ascii for comparison
 // var errorTest error
