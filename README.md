@@ -3,10 +3,9 @@
 PL is a simple, easy to use pretty logger made in go.
 
 <!--toc:start-->
-- [PL - Simple Pretty Logger](#pl-simple-pretty-logger)
-  - [Installation](#installation)
-  - [Usage](#usage)
-  - [All Logging Functions](#all-logging-functions)
+- [Installation](#installation)
+- [Usage](#usage)
+- [All Logging Functions](#all-logging-functions)
 <!--toc:end-->
 
 
@@ -88,6 +87,13 @@ Changing SIMPLE to TIMEBASED & vice versa will cause problems hence use the
 Below is a list of all the available functions 
 
 ```go
+pl.InitPrettyLogger(opts)  // Accepts "SIMPLE" or "TIMEBASED"
+
+// Chaining functions (in order)
+.Timestamp()  // adds timestamp to the log
+.Print()      // prints the log (must be changed to each log for it to work)
+
+// All functions below accept `.Timestamp()` before `.Print()`
 pl.Log().Print()          // green
 pl.LogDebug().Print()     // cyan 
 pl.LogError().Print()     // red
