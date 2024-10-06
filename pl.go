@@ -253,7 +253,7 @@ func (le *LogEntry) Print() {
 }
 
 // Log general data (green)
-func Log(format string, a ...interface{}) *LogEntry {
+func LogGeneral(format string, a ...interface{}) *LogEntry {
 	logFormats := getLogType()
 	formattedMessage := fmt.Sprintf(format, a...)
 	entry := &LogEntry{
