@@ -9,7 +9,6 @@ package main // main here for testing
 import (
 	"fmt"
 	"io"
-	"log"
 	"time"
 
 	// "log"
@@ -185,97 +184,200 @@ func getLogType() LogTypes {
 	}
 }
 
-// Function that actually writes the logs
-func writeLog(logFormat string, logColor string, message string) {
+// Main LogEntry struct used throughout the project and for method chaining
+type LogEntry struct {
+	logFormat string
+	logColor  string
+	message   string
+	timestamp bool
+}
+
+// Includes the timestamp in the log.
+//
+// This should be chained with LogInfo, LogDebug, ... etc. and should have a
+// .Print() after it.
+//
+// Example:
+//
+// LogDebug("this is a debug log %v", "with a timestamp").Timestamp().Print()
+//
+// Which would output:
+//
+// [  DEBUG  2024/10/06 17:08:01 ] this is a debug log with a timestamp
+//
+// The timestamp will not be logged unless a .Print() is chained after it.
+func (le *LogEntry) Timestamp() *LogEntry {
+	le.timestamp = true
+	return le
+}
+
+// Print method to output the log (should be chained after .Timestamp())
+func (le *LogEntry) Print() {
 	timestamp := ""
-	if prettyLoggerConfig.logType == "TIMEBASED" {
+	if le.timestamp {
+		timestamp = "" + getCurrentTimestamp() + " "
+	}
+	if prettyLoggerConfig != nil {
+		fmt.Fprintf(
+			prettyLoggerConfig.writer,
+			le.logFormat,
+			le.logColor,
+			timestamp,
+			ResetANSI,
+			le.message,
+		)
+	}
+}
+
+// Function that actually writes the logs (used internally)
+func (le *LogEntry) writeLog() {
+	timestamp := ""
+	if le.timestamp && prettyLoggerConfig.logType != "TIMEBASED" {
 		timestamp = " " + getCurrentTimestamp() + " "
 	}
 	if prettyLoggerConfig != nil {
 		fmt.Fprintf(
 			prettyLoggerConfig.writer,
-			logFormat,
-			logColor,
+			le.logFormat,
+			le.logColor,
 			timestamp,
 			ResetANSI,
-			message,
+			le.message,
 		)
 	}
 }
 
-// Debug logs with cyan color
-func LogDebug(format string, a ...interface{}) {
+// Debug logs (cyan)
+func LogDebug(format string, a ...interface{}) *LogEntry {
 	logFormats := getLogType()
-	if prettyLoggerConfig != nil {
-		formattedMessage := fmt.Sprintf(format, a...)
-		writeLog(logFormats.DebugLog, CyanFgANSI, formattedMessage)
+	formattedMessage := fmt.Sprintf(format, a...)
+	entry := &LogEntry{
+		logFormat: logFormats.DebugLog,
+		logColor:  CyanFgANSI,
+		message:   formattedMessage,
+		timestamp: false,
 	}
+	// default
+	if prettyLoggerConfig.logType != "TIMEBASED" {
+		entry.writeLog()
+	}
+	return entry
 }
 
-func LogError(format string, a ...interface{}) {
+// Error logs (red) colour
+func LogError(format string, a ...interface{}) *LogEntry {
 	logFormats := getLogType()
-	if prettyLoggerConfig != nil {
-		formattedMessage := fmt.Sprintf(format, a...)
-		writeLog(logFormats.ErrorLog, RedFgANSI, formattedMessage)
+	formattedMessage := fmt.Sprintf(format, a...)
+	entry := &LogEntry{
+		logFormat: logFormats.ErrorLog,
+		logColor:  RedFgANSI,
+		message:   formattedMessage,
+		timestamp: false,
 	}
+	// default
+	if prettyLoggerConfig.logType != "TIMEBASED" {
+		entry.writeLog()
+	}
+	return entry
 }
 
-func LogInfo(format string, a ...interface{}) {
+// Info logs (blue)
+func LogInfo(format string, a ...interface{}) *LogEntry {
 	logFormats := getLogType()
-	if prettyLoggerConfig != nil {
-		formattedMessage := fmt.Sprintf(format, a...)
-		writeLog(logFormats.InfoLog, BlueFgANSI, formattedMessage)
+	formattedMessage := fmt.Sprintf(format, a...)
+	entry := &LogEntry{
+		logFormat: logFormats.InfoLog,
+		logColor:  BlueFgANSI,
+		message:   formattedMessage,
+		timestamp: false,
 	}
+	// default
+	if prettyLoggerConfig.logType != "TIMEBASED" {
+		entry.writeLog()
+	}
+	return entry
 }
 
-func LogFatal(format string, a ...interface{}) {
+// fatal logs (bright red)
+func LogFatal(format string, a ...interface{}) *LogEntry {
 	logFormats := getLogType()
-	if prettyLoggerConfig != nil {
-		formattedMessage := fmt.Sprintf(format, a...)
-		writeLog(logFormats.FatalLog, BrightRedFgANSI, formattedMessage)
+	formattedMessage := fmt.Sprintf(format, a...)
+	entry := &LogEntry{
+		logFormat: logFormats.FatalLog,
+		logColor:  BrightRedFgANSI,
+		message:   formattedMessage,
+		timestamp: false,
 	}
+	// default
+	if prettyLoggerConfig.logType != "TIMEBASED" {
+		entry.writeLog()
+	}
+	return entry
 }
 
-func LogSuccess(format string, a ...interface{}) {
+// Success logs (green)
+func LogSuccess(format string, a ...interface{}) *LogEntry {
 	logFormats := getLogType()
-	if prettyLoggerConfig != nil {
-		formattedMessage := fmt.Sprintf(format, a...)
-		writeLog(logFormats.SuccessLog, GreenFgANSI, formattedMessage)
+	formattedMessage := fmt.Sprintf(format, a...)
+	entry := &LogEntry{
+		logFormat: logFormats.SuccessLog,
+		logColor:  GreenFgANSI,
+		message:   formattedMessage,
+		timestamp: false,
 	}
+	// default
+	if prettyLoggerConfig.logType != "TIMEBASED" {
+		entry.writeLog()
+	}
+	return entry
 }
 
-func LogFailure(format string, a ...interface{}) {
+// Failed logs (yellow)
+func LogFailure(format string, a ...interface{}) *LogEntry {
 	logFormats := getLogType()
-	if prettyLoggerConfig != nil {
-		formattedMessage := fmt.Sprintf(format, a...)
-		writeLog(logFormats.FailedLog, YellowFgANSI, formattedMessage)
+	formattedMessage := fmt.Sprintf(format, a...)
+	entry := &LogEntry{
+		logFormat: logFormats.FailedLog,
+		logColor:  YellowFgANSI,
+		message:   formattedMessage,
+		timestamp: false,
 	}
+	// default
+	if prettyLoggerConfig.logType != "TIMEBASED" {
+		entry.writeLog()
+	}
+	return entry
 }
 
 // Using main here for testing
 func main() {
 
 	// Init the logger with simple/complex config
-	InitPrettyLogger("SIMPLE")
-	// InitPrettyLogger("TIMEBASED")
+	// InitPrettyLogger("SIMPLE")
+	InitPrettyLogger("TIMEBASED")
 
-	// // Basic in built logging
-	// log.Printf("Hello there ")
+	LogDebug("this is a debug log %v", "which should print something").Timestamp().Print()
+	LogInfo("job info: %v ", "running job ...")
+	LogInfo("job info: %v ", "job SUCCESS").Timestamp().Print()
 
-	// Testing different data types to see if it works
-	var someString string
-	var someInt int
-	var someFloat float64
-	someString = "this is some string"
-	someInt = 42069
-	someFloat = 2981389.829810
+	// // Testing different data types to see if it works
+	// var someString string
+	// var someInt int
+	// var someFloat float64
+	// someString = "this is some string"
+	// someInt = 42069
+	// someFloat = 2981389.829810
 
-	LogError("some ERROR shit here")
-	LogDebug("this is a debug log")
-	LogInfo("some info here")
-	LogSuccess("success with some int -> %v", someInt)
-	LogFailure("this is a failure message")
-	LogFatal("failed to 420: %v %v", someString, someFloat)
+	// LogError("some ERROR shit here")
+	// LogDebug("this is a debug log")
+	// LogInfo("some info here")
+	// LogSuccess("success with some int -> %v", someInt)
+	// LogFailure("this is a failure message")
+	// LogFatal("failed to 420: %v %v", someString, someFloat)
+
+	// Example of logging with timestamp
+	// LogDebug("this is a debug log with timestamp").Timestamp().Print()
+	// LogInfo("some info here with timestamp").Timestamp().Print()
 }
 
 // Test with basic raw ascii for comparison
