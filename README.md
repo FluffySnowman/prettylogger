@@ -57,7 +57,7 @@ import (
 
 func main() {
   pl.InitPrettyLogger("TIMEBASED")    // shows timestamps
-  pl.LogGeneral("Hello World").Print()
+  pl.Log("Hello World").Print()
 }
 ```
 
@@ -94,7 +94,7 @@ pl.InitPrettyLogger(opts)  // Accepts "SIMPLE" or "TIMEBASED"
 .Print()      // prints the log (must be chained to each log for it to work)
 
 // All functions below accept `.Timestamp()` before `.Print()`
-pl.LogGeneral().Print()          // green
+pl.Log().Print()          // green
 pl.LogDebug().Print()     // cyan 
 pl.LogError().Print()     // red
 pl.LogInfo().Print()      // blue
