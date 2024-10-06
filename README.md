@@ -2,6 +2,14 @@
 
 PL is a simple, easy to use pretty logger made in go.
 
+<!--toc:start-->
+- [PL - Simple Pretty Logger](#pl-simple-pretty-logger)
+  - [Installation](#installation)
+  - [Usage](#usage)
+  - [All Logging Functions](#all-logging-functions)
+<!--toc:end-->
+
+
 ## Installation
 
 Go's module suppert automatically fetches all the dependencies needed when you
