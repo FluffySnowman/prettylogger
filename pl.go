@@ -257,7 +257,7 @@ func Log(format string, a ...interface{}) *LogEntry {
 	logFormats := getLogType()
 	formattedMessage := fmt.Sprintf(format, a...)
 	entry := &LogEntry{
-		logFormat: logFormats.DebugLog,
+		logFormat: logFormats.LogLog,
 		logColor:  GreenFgANSI,
 		message:   formattedMessage,
 		timestamp: false,
