@@ -30,7 +30,7 @@ Author: @FluffySnowman (GitHub)
 
 Source: https://github.com/FluffySnowman/prettylogger
 */
-package prettylogger
+package main
 
 // package main // main here for testing
 
@@ -136,29 +136,59 @@ type LogTypes struct {
 	InfoLog    string
 	SuccessLog string
 	FailedLog  string
+	OkayLog    string
 }
 
-// Simple log format with static text and string format specifiers for the ansi,
-// message and reset.
+// // Original simple log format where the whole thing except the log message is
+// // coloured. Now changed to the struct below
+// var SimpleLog = LogTypes{
+// 	LogLog:     "%s[   LOG   %s]%s %v\n",
+// 	DebugLog:   "%s[  DEBUG  %s]%s %v\n",
+// 	ErrorLog:   "%s[  ERROR  %s]%s %v\n",
+// 	FatalLog:   "%s[  FATAL  %s]%s %v\n",
+// 	InfoLog:    "%s[  INFO   %s]%s %v\n",
+// 	SuccessLog: "%s[ SUCCESS %s]%s %v\n",
+// 	FailedLog:  "%s[ FAILURE %s]%s %v\n",
+// 	OkayLog:    "%s[   OK    %s]%s %v\n",
+// }
+
+// Format for all the logs with (mostly) string format specifiers for ansi
+// colours, static text indicating what log it is, the log message and then
+// finally the ansi colour reset .
 var SimpleLog = LogTypes{
-	LogLog:     "%s[   LOG   %s]%s %v\n",
-	DebugLog:   "%s[  DEBUG  %s]%s %v\n",
-	ErrorLog:   "%s[  ERROR  %s]%s %v\n",
-	FatalLog:   "%s[  FATAL  %s]%s %v\n",
-	InfoLog:    "%s[  INFO   %s]%s %v\n",
-	SuccessLog: "%s[ SUCCESS %s]%s %v\n",
-	FailedLog:  "%s[ FAILURE %s]%s %v\n",
+	LogLog:     "[%s   LOG   %s%s] %v\n",
+	DebugLog:   "[%s  DEBUG  %s%s] %v\n",
+	ErrorLog:   "[%s  ERROR  %s%s] %v\n",
+	FatalLog:   "[%s  FATAL  %s%s] %v\n",
+	InfoLog:    "[%s  INFO   %s%s] %v\n",
+	SuccessLog: "[%s SUCCESS %s%s] %v\n",
+	FailedLog:  "[%s FAILURE %s%s] %v\n",
+	OkayLog:    "[%s   OK    %s%s] %v\n",
 }
 
-// Timestamped log formats
+// // Original timestamp log (not in use anymore)
+// // Same as SimpleLog but with timestamps
+// var TimestampLog = LogTypes{
+// 	LogLog:     "%s[   LOG   %s]%s %v\n",
+// 	DebugLog:   "%s[  DEBUG  %s]%s %v\n",
+// 	ErrorLog:   "%s[  ERROR  %s]%s %v\n",
+// 	FatalLog:   "%s[  FATAL  %s]%s %v\n",
+// 	InfoLog:    "%s[  INFO   %s]%s %v\n",
+// 	SuccessLog: "%s[ SUCCESS %s]%s %v\n",
+// 	FailedLog:  "%s[ FAILURE %s]%s %v\n",
+// 	OkayLog:    "%s[   OK    %s]%s %v\n",
+// }
+
+// Same as SimpleLog but with timestamps inside the []'s
 var TimestampLog = LogTypes{
-	LogLog:     "%s[   LOG   %s]%s %v\n",
-	DebugLog:   "%s[  DEBUG  %s]%s %v\n",
-	ErrorLog:   "%s[  ERROR  %s]%s %v\n",
-	FatalLog:   "%s[  FATAL  %s]%s %v\n",
-	InfoLog:    "%s[  INFO   %s]%s %v\n",
-	SuccessLog: "%s[ SUCCESS %s]%s %v\n",
-	FailedLog:  "%s[ FAILURE %s]%s %v\n",
+	LogLog:     "[%s   LOG   %s%s] %v\n",
+	DebugLog:   "[%s  DEBUG  %s%s] %v\n",
+	ErrorLog:   "[%s  ERROR  %s%s] %v\n",
+	FatalLog:   "[%s  FATAL  %s%s] %v\n",
+	InfoLog:    "[%s  INFO   %s%s] %v\n",
+	SuccessLog: "[%s SUCCESS %s%s] %v\n",
+	FailedLog:  "[%s FAILURE %s%s] %v\n",
+	OkayLog:    "[%s   OK    %s%s] %v\n",
 }
 
 // Configuration for the logger
@@ -291,13 +321,13 @@ func LogError(format string, a ...interface{}) *LogEntry {
 	return entry
 }
 
-// Info logs (blue)
+// Info logs (cyan)
 func LogInfo(format string, a ...interface{}) *LogEntry {
 	logFormats := getLogType()
 	formattedMessage := fmt.Sprintf(format, a...)
 	entry := &LogEntry{
 		logFormat: logFormats.InfoLog,
-		logColor:  BlueFgANSI,
+		logColor:  CyanFgANSI,
 		message:   formattedMessage,
 		timestamp: false,
 	}
@@ -343,12 +373,85 @@ func LogFailure(format string, a ...interface{}) *LogEntry {
 	return entry
 }
 
-// Using main here for testing
-// func main() {
+// Okay logs (green)
+func LogOK(format string, a ...interface{}) *LogEntry {
+	logFormats := getLogType()
+	formattedMessage := fmt.Sprintf(format, a...)
+	entry := &LogEntry{
+		logFormat: logFormats.OkayLog,
+		logColor:  GreenFgANSI,
+		message:   formattedMessage,
+		timestamp: false,
+	}
+	return entry
+}
 
-// 	// Init the logger with simple/complex config
-// 	InitPrettyLogger("SIMPLE")
-// 	// InitPrettyLogger("TIMEBASED")
+
+// Log with filled background
+func LogErrorBG(format string, a ...interface{}) *LogEntry {
+	logFormats := getLogType()
+	formattedMessage := fmt.Sprintf(format, a...)
+	entry := &LogEntry{
+		logFormat: logFormats.ErrorLog,
+		logColor:  RedBgANSI,
+		message:   formattedMessage,
+		timestamp: false,
+	}
+	return entry
+}
+
+
+// Log with filled background
+func LogFailureBG(format string, a ...interface{}) *LogEntry {
+	logFormats := getLogType()
+	formattedMessage := fmt.Sprintf(format, a...)
+	entry := &LogEntry{
+		logFormat: logFormats.FailedLog,
+		logColor:  YellowBgANSI,
+		message:   formattedMessage,
+		timestamp: false,
+	}
+	return entry
+}
+
+
+// Using main here for testing
+func main() {
+
+	// Init the logger with simple/complex config
+	// InitPrettyLogger("SIMPLE")
+	InitPrettyLogger("TIMEBASED")
+	// LogDebug("this is a DEBUG log").Print()
+	// LogError("this is a error log").Print()
+	// LogSuccess("this is a success log").Print()
+	// LogInfo("this is a INFO log").Print()
+	// LogOK("this is ok").Print();
+	// LogOK("this is ok").Print();
+	// LogOK("this is ok").Print();
+	// LogOK("this is ok").Print();
+	// LogOK("this is ok").Print();
+	// LogDebug("this i sa debeg log over here ").Print()
+	println()
+	Log("connecting to database...").Print()
+	LogOK("database connected").Print()
+    LogInfo("preparing to execute query...").Print()
+    LogDebug("query: SELECT * FROM users WHERE username = $1").Print()
+	LogFailure("failed to execute query").Print()
+	LogFailureBG("failed to execute query").Print()
+	LogFatal("segmentation fault, core dumped\n\n").Print()
+    LogErrorBG("DUMPING CORE..").Print()
+    // LogError("DUMPING CORE..").Print()
+
+    // println("testing all log types below to see how they look\n")
+    // Log("hello there").Print();
+    // LogDebug("hello there").Print();
+    // LogError("hello there").Print();
+    // LogInfo("hello there").Print();
+    // LogFatal("hello there").Print();
+    // LogSuccess("hello there").Print();
+    // LogFailure("hello there").Print();
+    // LogOK("hello there").Print();
+}
 
 // 	LogDebug("this is a debug log %v", "which should print something").Timestamp().Print()
 // 	// LogDebug("this is a debug log %v", "which should print something").Timestamp().Print()
