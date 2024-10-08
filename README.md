@@ -11,18 +11,18 @@ PL is a simple, easy to use pretty logger made in go.
 
 ## Installation
 
-Use `go get` to install with the latest tag `v0.0.1` (recommended)
+Use `go get` to install with the latest tag `v0.0.2` (recommended)
 
 ```bash
-go get -u github.com/fluffysnowman/prettylogger@v0.0.1
+go get -u github.com/fluffysnowman/prettylogger@v0.0.2
 ```
 
 or
 
 Go's module suppert automatically fetches all the dependencies needed when you
 import it in your code so `go get` isn't required, however for this project, the
-`go get` installation is recommended (see the code block above for
-instructions).
+`go get` installation is recommended with a specified tag (see the code block
+above for instructions).
 
 ```go
 // Importing and setting an alias to `pl` 
@@ -92,8 +92,10 @@ Changing SIMPLE to TIMEBASED & vice versa will cause problems hence use the
 Below is a list of all the available functions.
 
 > Please note that `.Print()` **must be chained after every function**. The logs
-> will not be printed without .Print() after each one. `.Print()` should be
-> called **AFTER** `.Timestamp()` for timestamp logs.
+> will not be printed without .Print() after each one. 
+
+> For timestamp logs, `.Print()` should be called **AFTER** `.Timestamp()` for
+> timestamp logs; i.e. `pl.LogDebug().Timestamp().Print()`
 
 ```go
 pl.InitPrettyLogger(opts)  // Accepts "SIMPLE" or "TIMEBASED"
