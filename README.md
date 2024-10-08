@@ -89,7 +89,11 @@ Changing SIMPLE to TIMEBASED & vice versa will cause problems hence use the
 
 ## All Logging Functions
 
-Below is a list of all the available functions 
+Below is a list of all the available functions.
+
+> Please note that `.Print()` **must be chained after every function**. The logs
+> will not be printed without .Print() after each one. `.Print()` should be
+> called **AFTER** `.Timestamp()` for timestamp logs.
 
 ```go
 pl.InitPrettyLogger(opts)  // Accepts "SIMPLE" or "TIMEBASED"
@@ -102,9 +106,13 @@ pl.InitPrettyLogger(opts)  // Accepts "SIMPLE" or "TIMEBASED"
 pl.Log().Print()          // green
 pl.LogDebug().Print()     // cyan 
 pl.LogError().Print()     // red
-pl.LogInfo().Print()      // blue
+pl.LogInfo().Print()      // cyan
 pl.LogFatal().Print()     // red
 pl.LogSuccess().Print()   // green
 pl.LogFailure().Print()   // yellow
+pl.LogOK().Print()        // green
+pl.LogErrorBG().Print()   // red background, white text
+pl.LogFailureBG().Print() // yellow background, white text
 ```
+
 

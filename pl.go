@@ -30,8 +30,7 @@ Author: @FluffySnowman (GitHub)
 
 Source: https://github.com/FluffySnowman/prettylogger
 */
-package main
-
+package prettylogger
 // package main // main here for testing
 
 import (
@@ -416,42 +415,42 @@ func LogFailureBG(format string, a ...interface{}) *LogEntry {
 
 
 // Using main here for testing
-func main() {
+// func main() {
 
-	// Init the logger with simple/complex config
-	// InitPrettyLogger("SIMPLE")
-	InitPrettyLogger("TIMEBASED")
-	// LogDebug("this is a DEBUG log").Print()
-	// LogError("this is a error log").Print()
-	// LogSuccess("this is a success log").Print()
-	// LogInfo("this is a INFO log").Print()
-	// LogOK("this is ok").Print();
-	// LogOK("this is ok").Print();
-	// LogOK("this is ok").Print();
-	// LogOK("this is ok").Print();
-	// LogOK("this is ok").Print();
-	// LogDebug("this i sa debeg log over here ").Print()
-	println()
-	Log("connecting to database...").Print()
-	LogOK("database connected").Print()
-    LogInfo("preparing to execute query...").Print()
-    LogDebug("query: SELECT * FROM users WHERE username = $1").Print()
-	LogFailure("failed to execute query").Print()
-	LogFailureBG("failed to execute query").Print()
-	LogFatal("segmentation fault, core dumped\n\n").Print()
-    LogErrorBG("DUMPING CORE..").Print()
-    // LogError("DUMPING CORE..").Print()
+// 	// Init the logger with simple/complex config
+// 	// InitPrettyLogger("SIMPLE")
+// 	InitPrettyLogger("TIMEBASED")
+// 	// LogDebug("this is a DEBUG log").Print()
+// 	// LogError("this is a error log").Print()
+// 	// LogSuccess("this is a success log").Print()
+// 	// LogInfo("this is a INFO log").Print()
+// 	// LogOK("this is ok").Print();
+// 	// LogOK("this is ok").Print();
+// 	// LogOK("this is ok").Print();
+// 	// LogOK("this is ok").Print();
+// 	// LogOK("this is ok").Print();
+// 	// LogDebug("this i sa debeg log over here ").Print()
+// 	println()
+// 	Log("connecting to database...").Print()
+// 	LogOK("database connected").Print()
+//     LogInfo("preparing to execute query...").Print()
+//     LogDebug("query: SELECT * FROM users WHERE username = $1").Print()
+// 	LogFailure("failed to execute query").Print()
+// 	LogFailureBG("failed to execute query").Print()
+// 	LogFatal("segmentation fault, core dumped\n\n").Print()
+//     LogErrorBG("DUMPING CORE..").Print()
+//     // LogError("DUMPING CORE..").Print()
 
-    // println("testing all log types below to see how they look\n")
-    // Log("hello there").Print();
-    // LogDebug("hello there").Print();
-    // LogError("hello there").Print();
-    // LogInfo("hello there").Print();
-    // LogFatal("hello there").Print();
-    // LogSuccess("hello there").Print();
-    // LogFailure("hello there").Print();
-    // LogOK("hello there").Print();
-}
+//     // println("testing all log types below to see how they look\n")
+//     // Log("hello there").Print();
+//     // LogDebug("hello there").Print();
+//     // LogError("hello there").Print();
+//     // LogInfo("hello there").Print();
+//     // LogFatal("hello there").Print();
+//     // LogSuccess("hello there").Print();
+//     // LogFailure("hello there").Print();
+//     // LogOK("hello there").Print();
+// }
 
 // 	LogDebug("this is a debug log %v", "which should print something").Timestamp().Print()
 // 	// LogDebug("this is a debug log %v", "which should print something").Timestamp().Print()
