@@ -65,6 +65,21 @@ func main() {
 }
 ```
 
+Using the new `SIMPLE2` format:
+
+```go
+package main
+
+import (
+  pl "github.com/fluffysnowman/prettylogger"
+)
+
+func main() {
+  pl.InitPrettyLogger("SIMPLE2")    // detailed and concise format (new)
+  pl.Log("Hello World")
+}
+```
+
 > [!IMPORTANT]  
 > Note that `SIMPLE`, `SIMPLE2` and `TIMEBASED` cannot be used together.
 > Changing or setting the InitPrettyLogger() multiple times may cause problems.
@@ -80,23 +95,19 @@ pl.LogDebug("this is a debug log %v", "foo bar")
 Below is a list of all the available functions.
 
 ```go
-pl.InitPrettyLogger(opts)  // Accepts "SIMPLE" or "TIMEBASED"
+pl.InitPrettyLogger(opts)  // Accepts "SIMPLE", "SIMPLE2" or "TIMEBASED"
 
-// Chaining functions (in order)
-.Timestamp()  // adds timestamp to the log
-.Print()      // prints the log (must be chained to each log for it to work)
-
-// All functions below accept `.Timestamp()` before `.Print()`
-pl.Log().Print()          // green
-pl.LogDebug().Print()     // cyan 
-pl.LogError().Print()     // red
-pl.LogInfo().Print()      // cyan
-pl.LogFatal().Print()     // red
-pl.LogSuccess().Print()   // green
-pl.LogFailure().Print()   // yellow
-pl.LogOK().Print()        // green
-pl.LogErrorBG().Print()   // red background, white text
-pl.LogFailureBG().Print() // yellow background, white text
+pl.Log()          // green
+pl.LogDebug()     // cyan 
+pl.LogError()     // red
+pl.LogInfo()      // cyan
+pl.LogWarn()      // yellow
+pl.LogFatal()     // red
+pl.LogSuccess()   // green
+pl.LogFailure()   // yellow
+pl.LogOK()        // green
+pl.LogErrorBG()   // red background, white text
+pl.LogFailureBG() // yellow background, white text
 ```
 
 

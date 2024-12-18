@@ -112,6 +112,7 @@ type LogTypes struct {
 	SuccessLog string
 	FailedLog  string
 	OkayLog    string
+	WarnLog    string
 }
 
 // Format for normal SIMPLE logs (original)
@@ -148,6 +149,7 @@ var Simple2Log = LogTypes{
 	SuccessLog: "INFO [%s|%s] %v\n", // success is info
 	FailedLog:  "ERROR[%s|%s] %v\n", // failure is error
 	OkayLog:    "INFO [%s|%s] %v\n", // ok is info
+	WarnLog:    "WARN [%s|%s] %v\n",
 }
 
 // Configuration for the logger
@@ -305,6 +307,12 @@ func LogOK(format string, a ...interface{}) {
 	printLog(logFormats.OkayLog, GreenFgANSI, formattedMessage, false)
 }
 
+func LogWarn(format string, a ...interface{}) {
+	logFormats := getLogType()
+	formattedMessage := fmt.Sprintf(format, a...)
+	printLog(logFormats.WarnLog, YellowFgANSI, formattedMessage, false)
+}
+
 func LogErrorBG(format string, a ...interface{}) {
 	logFormats := getLogType()
 	formattedMessage := fmt.Sprintf(format, a...)
@@ -339,6 +347,7 @@ func LogFailureBG(format string, a ...interface{}) {
 // 	LogDebug("debug")
 // 	LogError("error")
 // 	LogInfo("info")
+// 	LogWarn("warn")
 // 	LogFatal("fatal")
 // 	LogSuccess("success")
 // 	LogFailure("failure")
