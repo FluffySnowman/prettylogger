@@ -6,12 +6,13 @@ simplicity.
 
 # Usage
 
-Initialise the pretty logger with a config (can be SIMPLE, TIMEBASED) which
-is automatically used everywhere once set.
+Initialise the pretty logger with a config (can be SIMPLE, SIMPLE2 [newly added
+log format] or TIMEBASED) which is automatically used everywhere once set.
 
 Example:
 
 	pl.InitPrettyLogger("SIMPLE")       // basic
+	pl.InitPrettyLogger("SIMPLE2")      // new concise format
 	pl.InitPrettyLogger("TIMEBASED")    // shows timestamps
 	pl.LogInfo("Hello World")
 
@@ -19,18 +20,25 @@ Multiple arguments:
 
 	pl.LogDebug("this is a debug log %v", "foo bar")
 
-Force a timestamp log:
+# All available log types
 
-	pl.LogDebug("this is a debug log %v", "foo bar").Timestamp().Print()
-
-Changing SIMPLE to TIMEBASED & vice versa will cause problems hence use the
-.Timestamp() and .Print() when timestamps are needed.
+	pl.Log("log")
+	pl.LogDebug("debug")
+	pl.LogError("error")
+	pl.LogInfo("info")
+	pl.LogFatal("fatal")
+	pl.LogSuccess("success")
+	pl.LogFailure("failure")
+	pl.LogOK("ok")
+	pl.LogErrorBG("errorbg")
+	pl.LogFailureBG("failerbg")
 
 Author: @FluffySnowman (GitHub)
 
 Source: https://github.com/FluffySnowman/prettylogger
 */
 package prettylogger
+
 // package main // main here for testing
 
 import (
@@ -162,6 +170,11 @@ func getSimple2Timestamp() string {
 // Global pretty logger instance (used to r/w config from)
 var prettyLoggerConfig *PrettyLogger
 
+// sets the log format to SIMPLE, SIMPLE2 (newly added format) or TIMEBASED.
+//
+// Default is set to SIMPLE.
+//
+// Do not set the log format multiple times as it will cause problems
 func InitPrettyLogger(prettyLogType string) {
 	if len(prettyLogType) < 1 {
 		prettyLogType = "SIMPLE"
@@ -308,8 +321,9 @@ func LogFailureBG(format string, a ...interface{}) {
 // func main() {
 
 // 	// Init the logger with simple/complex config
-// 	InitPrettyLogger("SIMPLE2")
+// 	// InitPrettyLogger("SIMPLE")
 // 	// InitPrettyLogger("TIMEBASED")
+// 	InitPrettyLogger("SIMPLE2")
 // 	// LogDebug("this is a DEBUG log").Print()
 // 	// LogError("this is a error log").Print()
 // 	// LogSuccess("this is a success log").Print()
@@ -321,16 +335,16 @@ func LogFailureBG(format string, a ...interface{}) {
 // 	// LogOK("this is ok").Print();
 // 	// LogDebug("this i sa debeg log over here ").Print()
 // 	// println()
-// 	Log("hello there")
-// 	LogDebug("hello there debug")
-// 	LogError("hello there error")
-// 	LogInfo("hello there info")
-// 	LogFatal("hello there fatal")
-// 	LogSuccess("hello there success")
-// 	LogFailure("hello there failure")
-// 	LogOK("hello there ok")
-// 	LogErrorBG("hello there errorbg")
-// 	LogFailureBG("hello there failerbg")
+// 	Log("log")
+// 	LogDebug("debug")
+// 	LogError("error")
+// 	LogInfo("info")
+// 	LogFatal("fatal")
+// 	LogSuccess("success")
+// 	LogFailure("failure")
+// 	LogOK("ok")
+// 	LogErrorBG("errorbg")
+// 	LogFailureBG("failerbg")
 // 	// Log("connecting to database...")
 // 	// LogOK("database connected")
 // 	// LogSuccess("database connected")
