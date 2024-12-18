@@ -32,8 +32,8 @@ import pl "github.com/fluffysnowman/prettylogger"
 
 ## Usage
 
-Initialise the pretty logger with a config (can be SIMPLE, TIMEBASED) which
-is automatically used everywhere once set.
+Initialise the pretty logger with a config (can be SIMPLE, SIMPLE2 or TIMEBASED)
+which is automatically used everywhere once set.
 
 Basic example:
 
@@ -46,8 +46,7 @@ import (
 
 func main() {
   pl.InitPrettyLogger("SIMPLE")       // basic 
-  pl.Log("Hello World").Print()   // .Print() must always be called
-                                      // otherwise nothing works
+  pl.LogInfo("Hello World")
 }
 ```
 
@@ -62,7 +61,7 @@ import (
 
 func main() {
   pl.InitPrettyLogger("TIMEBASED")    // shows timestamps
-  pl.Log("Hello World").Print()
+  pl.Log("Hello World")
 }
 ```
 
@@ -73,30 +72,12 @@ func main() {
 Multiple arguments:
 
 ```go
-pl.LogDebug("this is a debug log %v", "foo bar").Print()
+pl.LogDebug("this is a debug log %v", "foo bar")
 ```
-
-Force a timestamp log:
-
-This is useful when you want to log with timestamps when `InitPrettyLogger()` is
-set with `SIMPLE`
-
-```go
-pl.LogDebug("this is a debug log %v", "with a timestamp").Timestamp().Print()
-```
-
-Changing SIMPLE to TIMEBASED & vice versa will cause problems hence use the
-.Timestamp() and .Print() when timestamps are needed.
 
 ## All Logging Functions
 
 Below is a list of all the available functions.
-
-> Please note that `.Print()` **must be chained after every function**. The logs
-> will not be printed without .Print() after each one. 
-
-> For timestamp logs, `.Print()` should be called **AFTER** `.Timestamp()` for
-> timestamp logs; i.e. `pl.LogDebug().Timestamp().Print()`
 
 ```go
 pl.InitPrettyLogger(opts)  // Accepts "SIMPLE" or "TIMEBASED"
