@@ -37,6 +37,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -52,7 +53,7 @@ const (
 	WhiteFgANSI   = "\033[37m"
 	BlackFgANSI   = "\033[30m"
 
-	// Bright foreground colours (might not be used anywhere but here cos yes)
+	// Bright foreground colours
 	BrightBlackFgANSI   = "\033[90m"
 	BrightRedFgANSI     = "\033[91m"
 	BrightGreenFgANSI   = "\033[92m"
@@ -88,41 +89,8 @@ const (
 )
 
 // All text formatting ansi codes
-// These are for the way that text should visually look such as italic, dim,
-// bold, blink (may not be supported in many terminals) and do not affect the
-// colours of the text (maybe except the Dim one)
 const (
-	ResetANSI               = "\033[0m" // Reset all (most used here)
-	BoldFormatANSI          = "\033[1m" // Bold
-	DimFormatANSI           = "\033[2m" // Dim
-	ItalicFormatANSI        = "\033[3m" // Italic
-	UnderlineFormatANSI     = "\033[4m" // Underline
-	BlinkFormatANSI         = "\033[5m" // Blink
-	ReverseFormatANSI       = "\033[7m" // Reverse (swaps bg and fg )
-	HiddenFormatANSI        = "\033[8m" // John Cena
-	StrikethroughFormatANSI = "\033[9m" // Strikethrough
-
-	// Reset all formats (these are only here for specific use cases. The
-	// general ResetANSI will be used everywhere)
-	ResetBoldFormatANSI          = "\033[21m"
-	ResetDimFormatANSI           = "\033[22m"
-	ResetItalicFormatANSI        = "\033[23m"
-	ResetUnderlineFormatANSI     = "\033[24m"
-	ResetBlinkFormatANSI         = "\033[25m"
-	ResetReverseFormatANSI       = "\033[27m"
-	ResetHiddenFormatANSI        = "\033[28m"
-	ResetStrikethroughFormatANSI = "\033[29m"
-)
-
-// All variants of log side/type (the text put before the thing the user will
-// log).
-// These will be printed before the respective logs and some can change
-const (
-	LogLogBasic   = "[   LOG   ] "
-	DebugLogBasic = "[  DEBUG  ] "
-	ErrorLogBasic = "[  ERROR  ] "
-	FatalLogBasic = "[  FATAL  ] "
-	InfoLogBasic  = "[  INFO   ] "
+	ResetANSI = "\033[0m"
 )
 
 // Struct for all the log types so that diff log formats can be defined without
@@ -138,22 +106,7 @@ type LogTypes struct {
 	OkayLog    string
 }
 
-// // Original simple log format where the whole thing except the log message is
-// // coloured. Now changed to the struct below
-// var SimpleLog = LogTypes{
-// 	LogLog:     "%s[   LOG   %s]%s %v\n",
-// 	DebugLog:   "%s[  DEBUG  %s]%s %v\n",
-// 	ErrorLog:   "%s[  ERROR  %s]%s %v\n",
-// 	FatalLog:   "%s[  FATAL  %s]%s %v\n",
-// 	InfoLog:    "%s[  INFO   %s]%s %v\n",
-// 	SuccessLog: "%s[ SUCCESS %s]%s %v\n",
-// 	FailedLog:  "%s[ FAILURE %s]%s %v\n",
-// 	OkayLog:    "%s[   OK    %s]%s %v\n",
-// }
-
-// Format for all the logs with (mostly) string format specifiers for ansi
-// colours, static text indicating what log it is, the log message and then
-// finally the ansi colour reset .
+// Format for normal SIMPLE logs (original)
 var SimpleLog = LogTypes{
 	LogLog:     "[%s   LOG   %s%s] %v\n",
 	DebugLog:   "[%s  DEBUG  %s%s] %v\n",
@@ -165,20 +118,7 @@ var SimpleLog = LogTypes{
 	OkayLog:    "[%s   OK    %s%s] %v\n",
 }
 
-// // Original timestamp log (not in use anymore)
-// // Same as SimpleLog but with timestamps
-// var TimestampLog = LogTypes{
-// 	LogLog:     "%s[   LOG   %s]%s %v\n",
-// 	DebugLog:   "%s[  DEBUG  %s]%s %v\n",
-// 	ErrorLog:   "%s[  ERROR  %s]%s %v\n",
-// 	FatalLog:   "%s[  FATAL  %s]%s %v\n",
-// 	InfoLog:    "%s[  INFO   %s]%s %v\n",
-// 	SuccessLog: "%s[ SUCCESS %s]%s %v\n",
-// 	FailedLog:  "%s[ FAILURE %s]%s %v\n",
-// 	OkayLog:    "%s[   OK    %s]%s %v\n",
-// }
-
-// Same as SimpleLog but with timestamps inside the []'s
+// Format for timestamp TIMEBASED logs (original)
 var TimestampLog = LogTypes{
 	LogLog:     "[%s   LOG   %s%s] %v\n",
 	DebugLog:   "[%s  DEBUG  %s%s] %v\n",
@@ -190,6 +130,18 @@ var TimestampLog = LogTypes{
 	OkayLog:    "[%s   OK    %s%s] %v\n",
 }
 
+// format for SIMPLE2 logs
+var Simple2Log = LogTypes{
+	LogLog:     "INFO [%s|%s] %v\n", // log is info in simple2
+	DebugLog:   "DEBUG[%s|%s] %v\n",
+	ErrorLog:   "ERROR[%s|%s] %v\n",
+	FatalLog:   "FATAL[%s|%s] %v\n",
+	InfoLog:    "INFO [%s|%s] %v\n",
+	SuccessLog: "INFO [%s|%s] %v\n", // success is info
+	FailedLog:  "ERROR[%s|%s] %v\n", // failure is error
+	OkayLog:    "INFO [%s|%s] %v\n", // ok is info
+}
+
 // Configuration for the logger
 type PrettyLogger struct {
 	writer   io.Writer
@@ -198,228 +150,166 @@ type PrettyLogger struct {
 	logType  string
 }
 
-// Gets current time formatted to rfc3339 to milliseconds with Z
 func getCurrentTimestamp() string {
-	// return time.Now().Format(time.RFC3339Nano)[:23] + "Z"
-	// return time.Now().Format(time.RFC3339);
 	return time.Now().Format("2006/01/02 15:04:05")
+}
+
+func getSimple2Timestamp() string {
+	return time.Now().Format("01-02|15:04:05.000")
+	// return time.Now().Format("01-02-2006|15:04:05.000")
 }
 
 // Global pretty logger instance (used to r/w config from)
 var prettyLoggerConfig *PrettyLogger
 
-// Ititializez the global pretty logger config with optional arguments
 func InitPrettyLogger(prettyLogType string) {
-	// If nothing is passed then its set to SIMPLE
 	if len(prettyLogType) < 1 {
 		prettyLogType = "SIMPLE"
 	}
 	prettyLoggerConfig = &PrettyLogger{
-		writer:  os.Stdout,   // default to stdout
-		color:   WhiteFgANSI, // Default color
+		writer:  os.Stdout,
+		color:   WhiteFgANSI,
 		logType: prettyLogType,
 	}
 }
 
-// Gets the type of the log (simple, timestamp etc) and returns it which is then
-// used in the actual logging
 func getLogType() LogTypes {
 	switch prettyLoggerConfig.logType {
 	case "SIMPLE":
 		return SimpleLog
 	case "TIMEBASED":
 		return TimestampLog
-	// case "TIMECOMPLEX":
-	// 	return ComplexTimestampLog
+	case "SIMPLE2":
+		return Simple2Log
 	default:
 		return SimpleLog
 	}
 }
 
-// Main LogEntry struct used throughout the project and for method chaining
-type LogEntry struct {
-	logFormat string
-	logColor  string
-	message   string
-	timestamp bool
-}
-
-// Includes the timestamp in the log.
-//
-// This should be chained with LogInfo, LogDebug, ... etc. and should have a
-// .Print() after it.
-//
-// Example:
-//
-// LogDebug("this is a debug log %v", "with a timestamp").Timestamp().Print()
-//
-// Which would output:
-//
-// [  DEBUG  2024/10/06 17:08:01 ] this is a debug log with a timestamp
-//
-// The timestamp will not be logged unless a .Print() is chained after it.
-func (le *LogEntry) Timestamp() *LogEntry {
-	le.timestamp = true
-	return le
-}
-
-// Print method to output the log (should be chained after .Timestamp())
-func (le *LogEntry) Print() {
-	timestamp := ""
-	if le.timestamp || prettyLoggerConfig.logType == "TIMEBASED" {
-		timestamp = " " + getCurrentTimestamp() + " "
+func printLog(logFormat string, logColor string, message string, timestamp bool) {
+	if prettyLoggerConfig == nil {
+		return
 	}
-	if prettyLoggerConfig != nil {
-		fmt.Fprintf(
-			prettyLoggerConfig.writer,
-			le.logFormat,
-			le.logColor,
-			timestamp,
-			ResetANSI,
-			le.message,
+
+	if prettyLoggerConfig.logType == "SIMPLE2" {
+		timestampStr := getSimple2Timestamp()
+		parts := strings.SplitN(timestampStr, "|", 2)
+		datePart := parts[0]
+		timePart := parts[1]
+
+		levelWord := ""
+		restFormat := ""
+		{
+			idxBracket := strings.Index(logFormat, "[")
+			idxSpace := strings.Index(logFormat, " ")
+			if idxBracket == -1 {
+				idxBracket = len(logFormat)
+			}
+			if idxSpace == -1 {
+				idxSpace = len(logFormat)
+			}
+
+			endIdx := idxBracket
+			if idxSpace != -1 && idxSpace < idxBracket {
+				endIdx = idxSpace
+			}
+			levelWord = logFormat[:endIdx]
+			restFormat = logFormat[len(levelWord):]
+		}
+
+		coloredDate := YellowFgANSI + datePart + ResetANSI
+		coloredTime := CyanFgANSI + timePart + ResetANSI
+		coloredMessage := WhiteFgANSI + message + ResetANSI
+
+		fmt.Fprintf(prettyLoggerConfig.writer,
+			"%s%s%s"+restFormat,
+			logColor, levelWord, ResetANSI,
+			coloredDate, coloredTime, coloredMessage,
 		)
+		return
 	}
+
+	timestampStr := ""
+	if timestamp || prettyLoggerConfig.logType == "TIMEBASED" {
+		timestampStr = " " + getCurrentTimestamp() + " "
+	}
+
+	fmt.Fprintf(
+		prettyLoggerConfig.writer,
+		logFormat,
+		logColor,
+		timestampStr,
+		ResetANSI,
+		message,
+	)
 }
 
-// Log general data (green)
-func Log(format string, a ...interface{}) *LogEntry {
+func Log(format string, a ...interface{}) {
 	logFormats := getLogType()
 	formattedMessage := fmt.Sprintf(format, a...)
-	entry := &LogEntry{
-		logFormat: logFormats.LogLog,
-		logColor:  GreenFgANSI,
-		message:   formattedMessage,
-		timestamp: false,
-	}
-	return entry
+	printLog(logFormats.LogLog, GreenFgANSI, formattedMessage, false)
 }
 
-// Debug logs (cyan)
-func LogDebug(format string, a ...interface{}) *LogEntry {
+func LogDebug(format string, a ...interface{}) {
 	logFormats := getLogType()
 	formattedMessage := fmt.Sprintf(format, a...)
-	entry := &LogEntry{
-		logFormat: logFormats.DebugLog,
-		logColor:  CyanFgANSI,
-		message:   formattedMessage,
-		timestamp: false,
-	}
-	return entry
+	printLog(logFormats.DebugLog, CyanFgANSI, formattedMessage, false)
 }
 
-// Error logs (red) colour
-func LogError(format string, a ...interface{}) *LogEntry {
+func LogError(format string, a ...interface{}) {
 	logFormats := getLogType()
 	formattedMessage := fmt.Sprintf(format, a...)
-	entry := &LogEntry{
-		logFormat: logFormats.ErrorLog,
-		logColor:  RedFgANSI,
-		message:   formattedMessage,
-		timestamp: false,
-	}
-	return entry
+	printLog(logFormats.ErrorLog, RedFgANSI, formattedMessage, false)
 }
 
-// Info logs (cyan)
-func LogInfo(format string, a ...interface{}) *LogEntry {
+func LogInfo(format string, a ...interface{}) {
 	logFormats := getLogType()
 	formattedMessage := fmt.Sprintf(format, a...)
-	entry := &LogEntry{
-		logFormat: logFormats.InfoLog,
-		logColor:  CyanFgANSI,
-		message:   formattedMessage,
-		timestamp: false,
-	}
-	return entry
+	printLog(logFormats.InfoLog, GreenFgANSI, formattedMessage, false)
 }
 
-// fatal logs (bright red)
-func LogFatal(format string, a ...interface{}) *LogEntry {
+func LogFatal(format string, a ...interface{}) {
 	logFormats := getLogType()
 	formattedMessage := fmt.Sprintf(format, a...)
-	entry := &LogEntry{
-		logFormat: logFormats.FatalLog,
-		logColor:  BrightRedFgANSI,
-		message:   formattedMessage,
-		timestamp: false,
-	}
-	return entry
+	printLog(logFormats.FatalLog, BrightRedFgANSI, formattedMessage, false)
 }
 
-// Success logs (green)
-func LogSuccess(format string, a ...interface{}) *LogEntry {
+func LogSuccess(format string, a ...interface{}) {
 	logFormats := getLogType()
 	formattedMessage := fmt.Sprintf(format, a...)
-	entry := &LogEntry{
-		logFormat: logFormats.SuccessLog,
-		logColor:  GreenFgANSI,
-		message:   formattedMessage,
-		timestamp: false,
-	}
-	return entry
+	printLog(logFormats.SuccessLog, GreenFgANSI, formattedMessage, false)
 }
 
-// Failed logs (yellow)
-func LogFailure(format string, a ...interface{}) *LogEntry {
+func LogFailure(format string, a ...interface{}) {
 	logFormats := getLogType()
 	formattedMessage := fmt.Sprintf(format, a...)
-	entry := &LogEntry{
-		logFormat: logFormats.FailedLog,
-		logColor:  YellowFgANSI,
-		message:   formattedMessage,
-		timestamp: false,
-	}
-	return entry
+	printLog(logFormats.FailedLog, RedFgANSI, formattedMessage, false)
 }
 
-// Okay logs (green)
-func LogOK(format string, a ...interface{}) *LogEntry {
+func LogOK(format string, a ...interface{}) {
 	logFormats := getLogType()
 	formattedMessage := fmt.Sprintf(format, a...)
-	entry := &LogEntry{
-		logFormat: logFormats.OkayLog,
-		logColor:  GreenFgANSI,
-		message:   formattedMessage,
-		timestamp: false,
-	}
-	return entry
+	printLog(logFormats.OkayLog, GreenFgANSI, formattedMessage, false)
 }
 
-
-// Log with filled background
-func LogErrorBG(format string, a ...interface{}) *LogEntry {
+func LogErrorBG(format string, a ...interface{}) {
 	logFormats := getLogType()
 	formattedMessage := fmt.Sprintf(format, a...)
-	entry := &LogEntry{
-		logFormat: logFormats.ErrorLog,
-		logColor:  RedBgANSI,
-		message:   formattedMessage,
-		timestamp: false,
-	}
-	return entry
+	printLog(logFormats.ErrorLog, RedBgANSI, formattedMessage, false)
 }
 
-
-// Log with filled background
-func LogFailureBG(format string, a ...interface{}) *LogEntry {
+func LogFailureBG(format string, a ...interface{}) {
 	logFormats := getLogType()
 	formattedMessage := fmt.Sprintf(format, a...)
-	entry := &LogEntry{
-		logFormat: logFormats.FailedLog,
-		logColor:  YellowBgANSI,
-		message:   formattedMessage,
-		timestamp: false,
-	}
-	return entry
+	printLog(logFormats.FailedLog, YellowBgANSI, formattedMessage, false)
 }
 
-
-// Using main here for testing
+// // Using main here for testing
 // func main() {
 
 // 	// Init the logger with simple/complex config
-// 	// InitPrettyLogger("SIMPLE")
-// 	InitPrettyLogger("TIMEBASED")
+// 	InitPrettyLogger("SIMPLE2")
+// 	// InitPrettyLogger("TIMEBASED")
 // 	// LogDebug("this is a DEBUG log").Print()
 // 	// LogError("this is a error log").Print()
 // 	// LogSuccess("this is a success log").Print()
@@ -430,26 +320,39 @@ func LogFailureBG(format string, a ...interface{}) *LogEntry {
 // 	// LogOK("this is ok").Print();
 // 	// LogOK("this is ok").Print();
 // 	// LogDebug("this i sa debeg log over here ").Print()
-// 	println()
-// 	Log("connecting to database...").Print()
-// 	LogOK("database connected").Print()
-//     LogInfo("preparing to execute query...").Print()
-//     LogDebug("query: SELECT * FROM users WHERE username = $1").Print()
-// 	LogFailure("failed to execute query").Print()
-// 	LogFailureBG("failed to execute query").Print()
-// 	LogFatal("segmentation fault, core dumped\n\n").Print()
-//     LogErrorBG("DUMPING CORE..").Print()
-//     // LogError("DUMPING CORE..").Print()
+// 	// println()
+// 	Log("hello there")
+// 	LogDebug("hello there debug")
+// 	LogError("hello there error")
+// 	LogInfo("hello there info")
+// 	LogFatal("hello there fatal")
+// 	LogSuccess("hello there success")
+// 	LogFailure("hello there failure")
+// 	LogOK("hello there ok")
+// 	LogErrorBG("hello there errorbg")
+// 	LogFailureBG("hello there failerbg")
+// 	// Log("connecting to database...")
+// 	// LogOK("database connected")
+// 	// LogSuccess("database connected")
+// 	// LogInfo("this should be an info log")
+// 	// LogInfo("this should be an info log")
+// 	// LogDebug("query: SELECT * FROM users WHERE username = $1")
+// 	// LogFailure("failed to execute query")
+// 	// LogFailureBG("failed to execute query")
+// 	// LogFatal("segmentation fault, core dumped")
+// 	// LogErrorBG("DUMPING CORE..")
+// 	//     LogInfo("preparing to execute query...").Print()
+// 	//     // LogError("DUMPING CORE..").Print()
 
-//     // println("testing all log types below to see how they look\n")
-//     // Log("hello there").Print();
-//     // LogDebug("hello there").Print();
-//     // LogError("hello there").Print();
-//     // LogInfo("hello there").Print();
-//     // LogFatal("hello there").Print();
-//     // LogSuccess("hello there").Print();
-//     // LogFailure("hello there").Print();
-//     // LogOK("hello there").Print();
+// 	// // println("testing all log types below to see how they look\n")
+// 	// // Log("hello there").Print();
+// 	// // LogDebug("hello there").Print();
+// 	// // LogError("hello there").Print();
+// 	// // LogInfo("hello there").Print();
+// 	// // LogFatal("hello there").Print();
+// 	// // LogSuccess("hello there").Print();
+// 	// // LogFailure("hello there").Print();
+// 	// // LogOK("hello there").Print();
 // }
 
 // 	LogDebug("this is a debug log %v", "which should print something").Timestamp().Print()

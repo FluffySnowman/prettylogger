@@ -66,8 +66,9 @@ func main() {
 }
 ```
 
-> Please note that `SIMPLE` and `TIMEBASED` cannot be used together. Changing or
-> redoing the InitPrettyLogger() will cause problems. 
+> [!IMPORTANT]  
+> Note that `SIMPLE`, `SIMPLE2` and `TIMEBASED` cannot be used together.
+> Changing or setting the InitPrettyLogger() multiple times may cause problems.
 
 Multiple arguments:
 
