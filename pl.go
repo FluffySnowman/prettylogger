@@ -37,9 +37,9 @@ Author: @FluffySnowman (GitHub)
 
 Source: https://github.com/FluffySnowman/prettylogger
 */
-package prettylogger
+// package prettylogger
 
-// package main // main here for testing
+package main // main here for testing
 
 import (
 	"fmt"
@@ -234,7 +234,7 @@ func printLog(logFormat string, logColor string, message string, timestamp bool)
 
 		coloredDate := YellowFgANSI + datePart + ResetANSI
 		coloredTime := CyanFgANSI + timePart + ResetANSI
-		coloredMessage := WhiteFgANSI + message + ResetANSI
+		coloredMessage := ResetANSI + message + ResetANSI
 
 		fmt.Fprintf(prettyLoggerConfig.writer,
 			"%s%s%s"+restFormat,
@@ -345,9 +345,10 @@ func LogFailureBG(format string, a ...interface{}) {
 // 	// println()
 // 	Log("log")
 // 	LogDebug("debug")
+//     fmt.Println("debug")
 // 	LogError("error")
 // 	LogInfo("info")
-// 	LogWarn("warn")
+// 	// LogWarn("warn")
 // 	LogFatal("fatal")
 // 	LogSuccess("success")
 // 	LogFailure("failure")

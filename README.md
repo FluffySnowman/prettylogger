@@ -11,10 +11,10 @@ PL is a simple, easy to use pretty logger made in go.
 
 ## Installation
 
-Use `go get` to install with the latest tag `v0.1.0` (recommended)
+Use `go get` to install with the latest tag `v0.1.1` (recommended)
 
 ```bash
-go get -u github.com/fluffysnowman/prettylogger@v0.1.0
+go get -u github.com/fluffysnowman/prettylogger@v0.1.1
 ```
 
 or
