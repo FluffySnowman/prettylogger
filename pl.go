@@ -37,9 +37,9 @@ Author: @FluffySnowman (GitHub)
 
 Source: https://github.com/FluffySnowman/prettylogger
 */
-// package prettylogger
+package prettylogger
 
-package main // main here for testing
+// package main // main here for testing
 
 import (
 	"fmt"
