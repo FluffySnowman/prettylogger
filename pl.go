@@ -41,6 +41,7 @@ Multiple arguments:
 	pl.LogDebug("debug message")
 	pl.LogWarn("warning message")
 	pl.LogError("error message")
+    pl.LogFatal("some fatal msg")
 
 Author: @FluffySnowman (GitHub)
 
@@ -178,6 +179,12 @@ func LogError(format string, a ...interface{}) {
 	logV3("ERR", COLOR_ERROR, fmt.Sprintf(format, a...))
 }
 
+func LogFatal(format string, a ...interface{}) {
+	logV3("FAT", COLOR_ERROR, fmt.Sprintf(format, a...))
+}
+
+
+/*
 func main() {
 
 	// // default shit test
@@ -201,3 +208,4 @@ func main() {
 	// LogError("error shit: %v", "lol")
 
 }
+*/

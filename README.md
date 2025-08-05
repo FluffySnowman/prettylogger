@@ -20,14 +20,14 @@ PL is a simple, easy to use pretty logger made in go.
 
 ## Installation
 
-Below are the instructions for `v0.1.2` and `v0.1.3`. `v0.1.3` is recommended.
+Below are the instructions for `v0.1.2` and `v0.1.4`. `v0.1.4` is recommended.
 
 <details open>
   <summary>Latest V3 Documentation</summary>
-  Use `go get` to install with the latest tag `v0.1.3` (recommended)
+  Use `go get` to install with the latest tag `v0.1.4` (recommended)
 
   ```bash
-  go get -u github.com/fluffysnowman/prettylogger@v0.1.3
+  go get -u github.com/fluffysnowman/prettylogger@v0.1.4
   ```
 
   Import: 
@@ -66,6 +66,7 @@ Below are the instructions for `v0.1.2` and `v0.1.3`. `v0.1.3` is recommended.
   pl.LogDebug("debug message")
   pl.LogWarn("warning message")
   pl.LogError("error message")
+  pl.LogFatal("some fatal msg")
   ```
 
 </details>
