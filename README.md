@@ -12,6 +12,9 @@ PL is a simple, easy to use pretty logger made in go.
 - [PL - Simple Pretty Logger](#pl-simple-pretty-logger)
   - [Installation](#installation)
   - [Usage (latest)](#usage-latest)
+    - [Debug log configuration](#debug-log-configuration)
+      - [Programmatic API for debug log config](#programmatic-api-for-debug-log-config)
+      - [Notes about how things work and how they are handled in go](#notes-about-how-things-work-and-how-they-are-handled-in-go)
     - [All available log types/methods/funcs](#all-available-log-typesmethodsfuncs)
   - [Usage (old)](#usage-old)
   - [All Logging Functions](#all-logging-functions)
@@ -20,14 +23,14 @@ PL is a simple, easy to use pretty logger made in go.
 
 ## Installation
 
-Below are the instructions for `v0.1.2` and `v0.1.4`. `v0.1.4` is recommended.
+Below are the instructions for `v0.1.2` and `v0.1.5`. `v0.1.5` is recommended.
 
 <details open>
   <summary>Latest V3 Documentation</summary>
-  Use `go get` to install with the latest tag `v0.1.4` (recommended)
+  Use `go get` to install with the latest tag `v0.1.5` (recommended)
 
   ```bash
-  go get -u github.com/fluffysnowman/prettylogger@v0.1.4
+  go get -u github.com/fluffysnowman/prettylogger@v0.1.5
   ```
 
   Import: 
@@ -58,6 +61,56 @@ Below are the instructions for `v0.1.2` and `v0.1.4`. `v0.1.4` is recommended.
   pl.InitPrettyLogger("V3,BURGER,FILECOLOR")                      // BURGER (american) time + colored file
   pl.InitPrettyLogger("V3,READABLE,FILEONLY,FILE=logfile.log")    // readable time w/ month names etc, file-only written to logfile.log
   ```
+
+  ### Debug log configuration 
+
+  You can turn **all `LogDebug` output** off in production without changing all
+  function calls throughout your codebase.
+
+  This can be done simply via environment variables when running your program or
+  programatically via the api.
+
+  | Variable | Effect |
+  |----------|--------|
+  | **`PLOG_DEBUG`** | If set and NON-EMPTY (after trimming): **`1`** -> debug **on**; **`0`** -> debug **off**. ANY OTHER NON-EMPTY VALUE is treated as **on** |
+  | **`LOGGER_ENV`** | Used only when **`PLOG_DEBUG`** is UNSET OR EMPTY. Value is trimmed and compared (case insensitieve) (e.g. **`prod`** and **`PROD`** both work). **`PROD`** -> debug **off**; anything else (INCLUDING UNSET) -> **on**. |
+
+  **Precedence:** non-empty **`PLOG_DEBUG`** **wins over** **`LOGGER_ENV`**.
+
+  Examples: 
+
+  ```bash 
+  export LOGGER_ENV=PROD          # debug OFF (if PLOG_DEBUG not set)
+  export PLOG_DEBUG=0             # debug OFF (overrides LOGGER_ENV)
+  export PLOG_DEBUG=1             # debug ON
+  ```
+
+  Above ^ can also be used inline when running as `PLOG_DEBUG=0 go run main.go
+  (or ./main)` or `LOGGER_ENV=PROD go run main.go (or ./main)` etc.
+
+  #### Programmatic API for debug log config
+
+  ```go
+  pl.DisableDebugLogs()   // force debug OFF
+  pl.EnableDebugLogs()    // force debug ON
+  if pl.DebugEnabled() {  // optional if needed. (should avoiid, possibly expensive)
+    pl.LogDebug("state=%+v", expensiveStruct)
+  }
+  ```
+
+  #### Notes about how things work and how they are handled in go
+
+  For re-initialisation Each call to InitPrettyLogger(...) **re applies** the
+  current process environment to the debug toggle. **IF YOU NEED DEBUG OFF
+  REGARDLESS OF ENV** then call pl.DisableDebugLogs() **AFTER**
+  InitPrettyLogger().
+
+  About golang itself: 
+
+  Args to `LogDebug("msg %v", f())` **ARE STILL EVALUATED** when the call runs.
+  For heavy f(), use `if pl.DebugEnabled() {...}` or move formatting inside that
+  block.
+
 
   ### All available log types/methods/funcs
 
